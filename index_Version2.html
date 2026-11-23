@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101124">
+  <title>COLOR REVERSE — Think Fast, Press Different!</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101124;
+      --panel: #1b1d38;
+      --panel-light: #252847;
+      --text: #f7f6ff;
+      --muted: #a7a9c5;
+      --yellow: #ffe66d;
+      --green: #63efb0;
+      --red: #ff6b81;
+      --shadow: 0 18px 45px #05061188;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: var(--text);
+      background:
+        radial-gradient(ellipse at 50% -20%, #414178 0, transparent 52%),
+        radial-gradient(circle at 8% 85%, #28294f 0, transparent 34%),
+        var(--bg);
+      font-family: Inter, ui-rounded, "Segoe UI", system-ui, sans-serif;
+    }
+
+    button, input { font: inherit; }
+    button { -webkit-tap-highlight-color: transparent; }
+
+    .app {
+      width: min(940px, 100%);
+      min-height: 100vh;
+      margin: auto;
+      padding: 18px 22px 24px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 44px;
+    }
+
+    .brand {
+      color: var(--yellow);
+      font-size: 1.05rem;
+      font-weight: 1000;
+      letter-spacing: .13em;
+    }
+
+    .top-actions { display: flex; gap: 9px; }
+
+    .small-button, .secondary-button {
+      border: 1px solid #555978;
+      border-radius: 12px;
+      padding: 10px 14px;
+      color: var(--text);
+      background: #222440;
+      font-weight: 750;
+      transition: transform .16s, background .16s, border-color .16s;
+    }
+
+    .small-button:hover, .secondary-button:hover {
+      transform: translateY(-2px);
+      border-color: var(--yellow);
+      background: #2b2e50;
+    }
+
+    main { flex: 1; display: grid; place-items: center; }
+
+    .screen {
+      display: none;
+      width: 100%;
+      animation: enter .28s ease both;
+    }
+
+    .screen.active { display: block; }
+
+    @keyframes enter {
+      from { opacity: 0; transform: translateY(9px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .center-screen {
+      max-width: 700px;
+      margin: 35px auto;
+      text-align: center;
+    }
+
+    .eyebrow {
+      color: var(--yellow);
+      font-size: .75rem;
+      font-weight: 950;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 8px 0 0;
+      font-size: clamp(3rem, 11vw, 6.3rem);
+      line-height: .96;
+      letter-spacing: -.055em;
+      text-shadow: 0 7px 0 #34345b, 0 15px 32px #0007;
+    }
+
+    h2 { margin: 10px 0; font-size: clamp(1.7rem, 5vw, 2.5rem); }
+    .subtitle { margin: 14px 0 22px; color: var(--yellow); font-weight: 950; letter-spacing: .11em; }
+    .copy { max-width: 550px; margin: 14px auto 24px; color: var(--muted); line-height: 1.65; }
+
+    .color-orbit {
+      width: min(275px, 70vw);
+      aspect-ratio: 1;
+      margin: 22px auto 24px;
+      display: grid;
+      place-items: center;
+      position: relative;
+      border: 1px solid #ffffff22;
+      border-radius: 50%;
+      background: radial-gradient(circle, #292b50, #191a34 67%);
+      box-shadow: var(--shadow), inset 0 0 35px #ffffff08;
+    }
+
+    .color-orbit::before {
+      content: "↻";
+      position: absolute;
+      color: #ffffff19;
+      font-size: 13rem;
+      line-height: 1;
+    }
+
+    .orbit-dots {
+      position: absolute;
+      inset: 14px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      place-items: center;
+    }
+
+    .dot {
+      width: clamp(36px, 10vw, 60px);
+      aspect-ratio: 1;
+      border: 3px solid #fff;
+      border-radius: 50%;
+      box-shadow: 0 5px 12px #0007;
+    }
+
+    .dot:nth-child(1) { grid-area: 1 / 2; background: #ff425b; }
+    .dot:nth-child(2) { grid-area: 2 / 3; background: #4285ff; }
+    .dot:nth-child(3) { grid-area: 3 / 2; background: #42d990; }
+    .dot:nth-child(4) { grid-area: 2 / 1; background: #ffd84d; }
+    .dot:nth-child(5) { grid-area: 1 / 1; background: #ae72ff; }
+    .dot:nth-child(6) { grid-area: 1 / 3; background: #ff963f; }
+
+    .orbit-center {
+      z-index: 1;
+      width: 86px;
+      height: 86px;
+      display: grid;
+      place-items: center;
+      border: 2px solid #ffffff44;
+      border-radius: 50%;
+      background: #17182e;
+      font-size: 2.1rem;
+      box-shadow: 0 8px 20px #0006;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .primary-button {
+      border: 0;
+      border-radius: 14px;
+      padding: 14px 25px;
+      color: #26233b;
+      background: var(--yellow);
+      box-shadow: 0 5px 0 #bc9d37, 0 12px 25px #0004;
+      font-weight: 1000;
+      letter-spacing: .08em;
+      transition: transform .15s, box-shadow .15s, filter .15s;
+    }
+
+    .primary-button:hover {
+      transform: translateY(-3px);
+      filter: brightness(1.06);
+      box-shadow: 0 8px 0 #bc9d37, 0 16px 27px #0005;
+    }
+
+    .primary-button:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 #bc9d37;
+    }
+
+    .mode-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 13px;
+      margin: 25px 0;
+      text-align: left;
+    }
+
+    .mode-card {
+      min-height: 180px;
+      padding: 18px;
+      border: 1px solid #515576;
+      border-radius: 19px;
+      color: var(--text);
+      background: linear-gradient(145deg, #292b4d, #1a1b34);
+      box-shadow: 0 12px 26px #0003;
+      text-align: left;
+      transition: transform .18s, border-color .18s, background .18s;
+    }
+
+    .mode-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--yellow);
+      background: linear-gradient(145deg, #33365e, #20213d);
+    }
+
+    .mode-card h3 { margin: 0 0 8px; color: var(--yellow); font-size: 1.2rem; }
+    .mode-card p { margin: 0; color: var(--muted); line-height: 1.5; font-size: .91rem; }
+    .mode-card strong { display: block; margin-top: 13px; font-size: .82rem; }
+
+    .instruction-card, .settings-card {
+      max-width: 580px;
+      margin: 22px auto;
+      padding: 22px;
+      border: 1px solid #505476;
+      border-radius: 20px;
+      background: linear-gradient(145deg, #252744, #1a1b33);
+      box-shadow: var(--shadow);
+      text-align: left;
+    }
+
+    .instruction-card li { margin: 10px 0; color: var(--muted); line-height: 1.55; }
+    .instruction-card strong { color: var(--text); }
+
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      padding: 15px 0;
+      border-bottom: 1px solid #ffffff18;
+    }
+
+    .setting-row:last-child { border-bottom: 0; }
+    .setting-row span { color: var(--muted); }
+    .setting-row label { font-weight: 800; }
+
+    .toggle {
+      width: 48px;
+      height: 28px;
+      position: relative;
+      appearance: none;
+      border-radius: 99px;
+      background: #555978;
+      cursor: pointer;
+      transition: background .2s;
+    }
+
+    .toggle::before {
+      content: "";
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: white;
+      transition: transform .2s;
+    }
+
+    .toggle:checked { background: #6fce9e; }
+    .toggle:checked::before { transform: translateX(20px); }
+    .toggle:focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
+
+    .game-screen { max-width: 780px; margin: 0 auto; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 9px;
+      margin: 12px 0 16px;
+    }
+
+    .stat {
+      padding: 10px 8px;
+      border: 1px solid #414464;
+      border-radius: 14px;
+      background: #1a1b34;
+      text-align: center;
+    }
+
+    .stat-label {
+      display: block;
+      color: var(--muted);
+      font-size: .7rem;
+      font-weight: 850;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+
+    .stat-value { display: block; margin-top: 3px; font-size: 1.18rem; font-weight: 1000; }
+    .stat-value.gold { color: var(--yellow); }
+    .stat-value.lives { color: #ff7587; letter-spacing: .08em; }
+
+    .controller {
+      position: relative;
+      padding: 19px 18px 16px;
+      overflow: hidden;
+      border: 1px solid #5a5d81;
+      border-radius: 22px;
+      background: linear-gradient(145deg, #292b4c, #1b1c36);
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .controller-caption {
+      color: var(--muted);
+      font-size: .75rem;
+      font-weight: 950;
+      letter-spacing: .2em;
+    }
+
+    .command {
+      min-height: 69px;
+      display: grid;
+      place-items: center;
+      margin: 4px 0 10px;
+      font-size: clamp(2.35rem, 9vw, 4.1rem);
+      font-weight: 1000;
+      line-height: 1;
+      letter-spacing: .04em;
+      text-shadow: 0 5px 0 #0003;
+    }
+
+    .command.red { color: #ff6678; }
+    .command.blue { color: #70a7ff; }
+    .command.green { color: #67e9a1; }
+    .command.yellow { color: #ffe66d; }
+    .command.purple { color: #c298ff; }
+    .command.orange { color: #ffad68; }
+
+    .rule-reminder {
+      color: var(--yellow);
+      font-size: .9rem;
+      font-weight: 900;
+      letter-spacing: .04em;
+    }
+
+    .timer-track {
+      height: 13px;
+      margin-top: 15px;
+      overflow: hidden;
+      border: 1px solid #ffffff2a;
+      border-radius: 99px;
+      background: #0e0f20;
+    }
+
+    .timer-fill {
+      width: 100%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #62efa9, #ffe66d 65%, #ff7185);
+      transform-origin: left center;
+      transform: scaleX(0);
+    }
+
+    .timer-fill.running { transform: scaleX(1); }
+    .timer-readout { margin-top: 5px; color: var(--muted); font-size: .76rem; font-weight: 800; }
+
+    .game-feedback {
+      min-height: 33px;
+      display: grid;
+      place-items: center;
+      margin: 9px 0 8px;
+      font-size: 1rem;
+      font-weight: 1000;
+      letter-spacing: .07em;
+    }
+
+    .game-feedback.good { color: var(--green); }
+    .game-feedback.bad { color: var(--red); }
+    .game-feedback.neutral { color: var(--yellow); }
+
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .color-button {
+      min-height: 79px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      border: 4px solid #fff;
+      border-radius: 19px;
+      color: #fff;
+      box-shadow: 0 7px 0 #0005, 0 12px 20px #0003;
+      font-size: clamp(.85rem, 2.7vw, 1.05rem);
+      font-weight: 1000;
+      letter-spacing: .06em;
+      text-shadow: 0 2px 4px #0007;
+      touch-action: manipulation;
+      user-select: none;
+      transition: transform .12s, filter .12s, box-shadow .12s, opacity .12s;
+    }
+
+    .color-button:hover:not(:disabled) {
+      transform: translateY(-4px) scale(1.02);
+      filter: brightness(1.12);
+      box-shadow: 0 10px 0 #0005, 0 16px 24px #0004;
+    }
+
+    .color-button:active:not(:disabled) {
+      transform: translateY(3px) scale(.97);
+      box-shadow: 0 3px 0 #0005;
+    }
+
+    .color-button:disabled { cursor: not-allowed; opacity: .42; filter: saturate(.55); }
+    .color-button:disabled.called-color { opacity: .72; filter: saturate(.8); }
+    .color-button.correct-pick { outline: 4px solid var(--green); outline-offset: 3px; }
+    .color-button.wrong-pick { outline: 4px solid var(--red); outline-offset: 3px; }
+
+    .color-button[data-color="RED"] { background: linear-gradient(145deg, #ff6374, #d92745); }
+    .color-button[data-color="BLUE"] { background: linear-gradient(145deg, #619aff, #2859d0); }
+    .color-button[data-color="GREEN"] { background: linear-gradient(145deg, #58df91, #15985c); }
+    .color-button[data-color="YELLOW"] { color: #28233a; text-shadow: none; background: linear-gradient(145deg, #ffe976, #e8b929); }
+    .color-button[data-color="PURPLE"] { background: linear-gradient(145deg, #bd8aff, #7945ce); }
+    .color-button[data-color="ORANGE"] { background: linear-gradient(145deg, #ffae61, #e36827); }
+
+    .color-dot {
+      width: 13px;
+      height: 13px;
+      flex: 0 0 auto;
+      border: 2px solid #ffffffcc;
+      border-radius: 50%;
+      background: #ffffff55;
+    }
+
+    .keyboard-hint { margin: 12px 0 0; color: #8f91ad; text-align: center; font-size: .78rem; }
+
+    .recent-calls {
+      display: none;
+      margin: 11px 0 0;
+      color: #989ab7;
+      text-align: center;
+      font-size: .78rem;
+    }
+
+    .recent-calls.visible { display: block; }
+    .recent-calls strong { color: var(--muted); }
+
+    .gameover-card {
+      max-width: 590px;
+      margin: 20px auto;
+      padding: 27px;
+      border: 1px solid #555878;
+      border-radius: 22px;
+      background: linear-gradient(145deg, #292b4e, #1a1b33);
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .gameover-card h2 { color: var(--red); font-size: clamp(2.4rem, 9vw, 4rem); }
+    .final-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 22px 0; }
+    .final-stat { padding: 14px 7px; border-radius: 13px; background: #15162c; }
+    .final-stat strong { display: block; color: var(--yellow); font-size: 1.5rem; }
+    .final-stat span { display: block; margin-top: 4px; color: var(--muted); font-size: .76rem; }
+    .footer-note { margin: 13px 0 0; color: #777a99; text-align: center; font-size: .75rem; }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 650px) {
+      .app { padding: 14px; }
+      .mode-grid { grid-template-columns: 1fr; }
+      .mode-card { min-height: auto; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .color-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .color-button { min-height: 73px; }
+      .controller { padding: 17px 13px 14px; }
+    }
+
+    @media (max-width: 360px) {
+      .brand { font-size: .9rem; }
+      .small-button { padding: 9px 10px; font-size: .84rem; }
+      .color-button { min-height: 67px; gap: 5px; }
+      .color-dot { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">◉ COLOR REVERSE</div>
+      <div class="top-actions">
+        <button class="small-button" id="howToTop" type="button">How to play</button>
+        <button class="small-button" id="settingsTop" type="button">⚙ Settings</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="screen center-screen active" id="menuScreen">
+        <div class="eyebrow">A reverse-reaction arcade game</div>
+        <h1>COLOR<br>REVERSE</h1>
+        <div class="subtitle">THINK FAST, PRESS DIFFERENT!</div>
+
+        <div class="color-orbit" aria-hidden="true">
+          <div class="orbit-dots">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          </div>
+          <div class="orbit-center">↯</div>
+        </div>
+
+        <p class="copy">
+          The controller calls a color. Your job is to press any other color before
+          the one-second timer runs out. Don't let your reflexes fool you!
+        </p>
+
+        <div class="button-row">
+          <button class="primary-button" id="playButton" type="button">▶ &nbsp; PLAY</button>
+          <button class="secondary-button" id="howToButton" type="button">HOW TO PLAY</button>
+          <button class="secondary-button" id="settingsButton" type="button">⚙ SETTINGS</button>
+        </div>
+      </section>
+
+      <section class="screen center-screen" id="difficultyScreen">
+        <div class="eyebrow">Choose your challenge</div>
+        <h2>Select a difficulty</h2>
+        <p class="copy">The response deadline is always one full second. Can you outthink your reflexes?</p>
+
+        <div class="mode-grid">
+          <button class="mode-card" data-mode="easy" type="button">
+            <h3>🟢 Easy</h3>
+            <p>Four colors, a gentler pace between turns, and a little room to warm up.</p>
+            <strong>3 lives · 4 colors · 1-second deadline</strong>
+          </button>
+          <button class="mode-card" data-mode="normal" type="button">
+            <h3>🟡 Normal</h3>
+            <p>All six colors and randomized calls. Stay alert—repeats can happen.</p>
+            <strong>3 lives · 6 colors · 1-second deadline</strong>
+          </button>
+          <button class="mode-card" data-mode="hard" type="button">
+            <h3>🔴 Hard</h3>
+            <p>All six colors, a faster pace between turns, and streak bonuses to chase.</p>
+            <strong>2 lives · 6 colors · 1-second deadline</strong>
+          </button>
+        </div>
+
+        <button class="secondary-button" id="difficultyBack" type="button">← Main menu</button>
+      </section>
+
+      <section class="screen center-screen" id="instructionsScreen">
+        <div class="eyebrow">One rule. One second. Go!</div>
+        <h2>Do the opposite.</h2>
+        <div class="instruction-card">
+          <ol>
+            <li>The controller calls a color, for example <strong>RED!</strong></li>
+            <li><strong>Do not press RED.</strong> Tap any other available color.</li>
+            <li>You have <strong>exactly one second</strong> to respond.</li>
+            <li>Correct answers earn points. Wrong colors and timeouts cost one life.</li>
+            <li>Use buttons or press the matching keyboard number, <strong>1–6</strong>.</li>
+          </ol>
+          <p id="chosenModeCopy" style="color:var(--yellow);font-weight:900;margin-bottom:0"></p>
+        </div>
+        <div class="button-row">
+          <button class="primary-button" id="beginButton" type="button">I'M READY!</button>
+          <button class="secondary-button" id="backToModes" type="button">← Change difficulty</button>
+        </div>
+      </section>
+
+      <section class="screen center-screen" id="howToScreen">
+        <div class="eyebrow">Quick briefing</div>
+        <h2>How to play</h2>
+        <div class="instruction-card">
+          <ol>
+            <li><strong>Read or listen</strong> to the color the controller announces.</li>
+            <li><strong>Press a different color.</strong> The called color is always wrong.</li>
+            <li>Make your choice before the <strong>one-second timer</strong> expires.</li>
+            <li>Correct answers are worth <strong>10 points</strong>. Reach a five-answer streak for +20, and a ten-answer streak for +50.</li>
+            <li>A wrong color or timeout costs one life. The game ends when you run out.</li>
+            <li>Use mouse, touchscreen, keyboard number keys, or Tab and Enter.</li>
+          </ol>
+          <p style="color:var(--muted)">Easy uses four colors and three lives. Normal uses six colors and three lives. Hard uses six colors and two lives. Hard mode also shows recent calls and moves on faster between turns.</p>
+        </div>
+        <button class="primary-button" id="howToBack" type="button">GOT IT</button>
+      </section>
+
+      <section class="screen center-screen" id="settingsScreen">
+        <div class="eyebrow">Make it yours</div>
+        <h2>Settings</h2>
+        <div class="settings-card">
+          <div class="setting-row">
+            <div><label for="speechToggle">Spoken color calls</label><br><span>Announce colors using your browser's voice.</span></div>
+            <input class="toggle" type="checkbox" id="speechToggle" checked>
+          </div>
+          <div class="setting-row">
+            <div><label for="soundToggle">Sound effects</label><br><span>Play a short tone for correct and incorrect answers.</span></div>
+            <input class="toggle" type="checkbox" id="soundToggle" checked>
+          </div>
+        </div>
+        <button class="primary-button" id="settingsBack" type="button">DONE</button>
+      </section>
+
+      <section class="screen game-screen" id="gameScreen">
+        <div class="topbar">
+          <button class="secondary-button" id="leaveButton" type="button">← Menu</button>
+          <div class="eyebrow" id="modeBadge">NORMAL MODE</div>
+          <button class="small-button" id="gameSettingsButton" type="button">⚙</button>
+        </div>
+
+        <div class="stats" aria-label="Game statistics">
+          <div class="stat"><span class="stat-label">Score</span><span class="stat-value gold" id="scoreValue">0</span></div>
+          <div class="stat"><span class="stat-label">Best</span><span class="stat-value" id="bestValue">0</span></div>
+          <div class="stat"><span class="stat-label">Streak</span><span class="stat-value" id="streakValue">0</span></div>
+          <div class="stat"><span class="stat-label">Lives</span><span class="stat-value lives" id="livesValue">● ● ●</span></div>
+        </div>
+
+        <div class="controller" id="controller">
+          <div class="controller-caption">THE CONTROLLER SAYS</div>
+          <div class="command" id="commandText" aria-live="assertive">GET READY</div>
+          <div class="rule-reminder">DON'T PRESS THE CALLED COLOR!</div>
+          <div class="timer-track" aria-label="One second response timer">
+            <div class="timer-fill" id="timerFill"></div>
+          </div>
+          <div class="timer-readout" id="timerReadout">1.00 SEC</div>
+        </div>
+
+        <div class="game-feedback neutral" id="feedback" aria-live="polite"></div>
+        <div class="color-grid" id="colorGrid"></div>
+        <div class="recent-calls" id="recentCalls"></div>
+        <p class="keyboard-hint" id="keyboardHint">Keyboard: press 1–6 to choose a color.</p>
+      </section>
+
+      <section class="screen center-screen" id="gameOverScreen">
+        <div class="gameover-card">
+          <div class="eyebrow">Round complete</div>
+          <h2>GAME OVER</h2>
+          <p class="copy" id="gameOverMessage">Your reflexes had a mind of their own!</p>
+
+          <div class="final-stats">
+            <div class="final-stat"><strong id="finalScore">0</strong><span>FINAL SCORE</span></div>
+            <div class="final-stat"><strong id="finalStreak">0</strong><span>BEST STREAK</span></div>
+            <div class="final-stat"><strong id="finalCorrect">0</strong><span>CORRECT</span></div>
+          </div>
+
+          <div class="button-row">
+            <button class="primary-button" id="playAgainButton" type="button">↻ PLAY AGAIN</button>
+            <button class="secondary-button" id="gameOverMenuButton" type="button">MAIN MENU</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer-note">Think fast. Trust the rule. Press different.</footer>
+  </div>
+
+  <script>
+    "use strict";
+
+    // Game constants: each turn always has a 1,000 ms response deadline.
+    const COLORS = ["RED", "BLUE", "GREEN", "YELLOW", "PURPLE", "ORANGE"];
+    const COLOR_CLASSES = ["red", "blue", "green", "yellow", "purple", "orange"];
+    const RESPONSE_MS = 1000;
+
+    const MODES = {
+      easy:   { label: "EASY MODE",   colorCount: 4, lives: 3, pause: 700 },
+      normal: { label: "NORMAL MODE", colorCount: 6, lives: 3, pause: 360 },
+      hard:   { label: "HARD MODE",   colorCount: 6, lives: 2, pause: 150 }
+    };
+
+    const $ = (selector) => document.querySelector(selector);
+    const screens = [...document.querySelectorAll(".screen")];
+
+    let selectedMode = "normal";
+    let activeColors = [];
+    let score = 0;
+    let streak = 0;
+    let bestStreak = 0;
+    let correctCount = 0;
+    let lives = 0;
+    let calledColor = "";
+    let previousCall = "";
+    let gameActive = false;
+    let roundResolved = true;
+    let deadline = 0;
+    let timerId = null;
+    let animationId = null;
+    let roundToken = 0;
+    let recentHistory = [];
+    let audioContext = null;
+
+    function showScreen(id) {
+      screens.forEach((screen) => screen.classList.toggle("active", screen.id === id));
+    }
+
+    function getBestScore() {
+      try {
+        return Number(localStorage.getItem("colorReverseBest") || 0);
+      } catch {
+        return 0;
+      }
+    }
+
+    function saveBestScore() {
+      try {
+        if (score > getBestScore()) localStorage.setItem("colorReverseBest", String(score));
+      } catch {
+        // The game remains playable if browser storage is unavailable.
+      }
+      $("#bestValue").textContent = String(getBestScore());
+    }
+
+    function updateStats() {
+      $("#scoreValue").textContent = score.toLocaleString();
+      $("#bestValue").textContent = String(getBestScore());
+      $("#streakValue").textContent = String(streak);
+      $("#livesValue").textContent = Array.from({ length: MODES[selectedMode].lives }, (_, i) =>
+        i < lives ? "●" : "○"
+      ).join(" ");
+    }
+
+    function cancelRoundTimers() {
+      if (timerId !== null) clearTimeout(timerId);
+      if (animationId !== null) cancelAnimationFrame(animationId);
+      timerId = null;
+      animationId = null;
+    }
+
+    function speakColor(color, token) {
+      const speechOn = $("#speechToggle").checked;
+      if (!speechOn || !("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) {
+        startDeadline(token);
+        return;
+      }
+
+      try {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(color);
+        utterance.rate = 1.2;
+        utterance.pitch = 1;
+        utterance.onend = () => {
+          if (gameActive && token === roundToken && !roundResolved) startDeadline(token);
+        };
+        utterance.onerror = () => {
+          if (gameActive && token === roundToken && !roundResolved) startDeadline(token);
+        };
+        window.speechSynthesis.speak(utterance);
+      } catch {
+        startDeadline(token);
+      }
+    }
+
+    function playTone(correct) {
+      if (!$("#soundToggle").checked) return;
+      try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return;
+        audioContext ||= new AudioContextClass();
+        if (audioContext.state === "suspended") audioContext.resume();
+
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        oscillator.type = "sine";
+        oscillator.frequency.value = correct ? 740 : 190;
+        gain.gain.setValueAtTime(0.08, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.12);
+        oscillator.connect(gain);
+        gain.connect(audioContext.destination);
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.13);
+      } catch {
+        // Audio is optional; visual and spoken gameplay still work.
+      }
+    }
+
+    function buildColorButtons() {
+      const grid = $("#colorGrid");
+      grid.replaceChildren();
+
+      activeColors.forEach((color, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "color-button";
+        button.dataset.color = color;
+        button.setAttribute("aria-label", `${color}, keyboard ${index + 1}`);
+
+        const dot = document.createElement("span");
+        dot.className = "color-dot";
+        dot.setAttribute("aria-hidden", "true");
+
+        const name = document.createElement("span");
+        name.textContent = `${index + 1} · ${color}`;
+
+        button.append(dot, name);
+        button.addEventListener("click", () => selectColor(color, button));
+        grid.append(button);
+      });
+
+      $("#keyboardHint").textContent =
+        `Keyboard: press 1–${activeColors.length} to choose a color.`;
+    }
+
+    function getNextColor() {
+      // Select from the current mode's available colors only. Avoiding an
+      // immediate repeat makes the call stream less predictable-looking.
+      let choices = activeColors.filter((color) => color !== previousCall);
+      if (!choices.length) choices = activeColors;
+      return choices[Math.floor(Math.random() * choices.length)];
+    }
+
+    function startNextRound() {
+      if (!gameActive) return;
+
+      cancelRoundTimers();
+      roundResolved = false;
+      roundToken += 1;
+      const token = roundToken;
+
+      calledColor = getNextColor();
+      previousCall = calledColor;
+      recentHistory.unshift(calledColor);
+      recentHistory = recentHistory.slice(0, 5);
+
+      const command = $("#commandText");
+      command.textContent = `${calledColor}!`;
+      command.className = `command ${calledColor.toLowerCase()}`;
+      $("#feedback").textContent = "Choose a different color!";
+      $("#feedback").className = "game-feedback neutral";
+
+      const buttons = [...$("#colorGrid").children];
+      buttons.forEach((button) => {
+        button.disabled = false;
+        button.classList.remove("called-color", "correct-pick", "wrong-pick");
+        if (button.dataset.color === calledColor) {
+          button.classList.add("called-color");
+          button.disabled = true;
+        }
+      });
+
+      updateRecentCalls();
+      $("#timerFill").classList.remove("running");
+      $("#timerFill").style.transform = "scaleX(1)";
+      $("#timerReadout").textContent = "1.00 SEC";
+
+      // Allow the instruction to paint first. If speech is enabled, the
+      // one-second response deadline begins when the spoken call completes.
+      requestAnimationFrame(() => {
+        if (gameActive && token === roundToken && !roundResolved) speakColor(calledColor, token);
+      });
+    }
+
+    function updateRecentCalls() {
+      const element = $("#recentCalls");
+      if (selectedMode !== "hard") {
+        element.classList.remove("visible");
+        element.textContent = "";
+        return;
+      }
+
+      element.classList.add("visible");
+      element.innerHTML = `<strong>Recent calls:</strong> ${recentHistory.join(" · ")}`;
+    }
+
+    function startDeadline(token) {
+      if (!gameActive || token !== roundToken || roundResolved) return;
+
+      deadline = performance.now() + RESPONSE_MS;
+      const fill = $("#timerFill");
+      fill.classList.add("running");
+      fill.style.transition = "none";
+      fill.style.transform = "scaleX(1)";
+      // Force layout so each turn's bar begins at a full second.
+      void fill.offsetWidth;
+      fill.style.transition = `transform ${RESPONSE_MS}ms linear`;
+      fill.style.transform = "scaleX(0)";
+
+      const updateReadout = () => {
+        if (!gameActive || token !== roundToken || roundResolved) return;
+        const remaining = Math.max(0, deadline - performance.now());
+        $("#timerReadout").textContent = `${(remaining / 1000).toFixed(2)} SEC`;
+        if (remaining > 0) animationId = requestAnimationFrame(updateReadout);
+      };
+      animationId = requestAnimationFrame(updateReadout);
+
+      timerId = window.setTimeout(() => {
+        if (gameActive && token === roundToken && !roundResolved) resolveTurn(false, null, true);
+      }, RESPONSE_MS);
+    }
+
+    function disableButtons() {
+      [...$("#colorGrid").children].forEach((button) => { button.disabled = true; });
+    }
+
+    function resolveTurn(isCorrect, pickedButton, timedOut) {
+      if (!gameActive || roundResolved) return;
+
+      // Enforce the deadline even if a click event and timeout happen close
+      // together in the browser's event queue.
+      if (!timedOut && performance.now() >= deadline) {
+        timedOut = true;
+        isCorrect = false;
+        pickedButton = null;
+      }
+
+      roundResolved = true;
+      cancelRoundTimers();
+      disableButtons();
+      $("#timerReadout").textContent = "0.00 SEC";
+
+      if (timedOut) {
+        applyMistake("TIME'S UP!", "bad");
+        return;
+      }
+
+      if (pickedButton) {
+        pickedButton.classList.add(isCorrect ? "correct-pick" : "wrong-pick");
+      }
+
+      if (isCorrect) {
+        score += 10;
+        streak += 1;
+        correctCount += 1;
+        bestStreak = Math.max(bestStreak, streak);
+
+        let bonusMessage = "";
+        if (streak === 5) {
+          score += 20;
+          bonusMessage = " · +20 STREAK BONUS!";
+        } else if (streak === 10) {
+          score += 50;
+          bonusMessage = " · +50 STREAK BONUS!";
+        }
+
+        $("#feedback").textContent = `${pick(["CORRECT!", "NICE REFLEX!", "GREAT JOB!", "QUICK THINKING!"])} +10${bonusMessage}`;
+        $("#feedback").className = "game-feedback good";
+        playTone(true);
+        saveBestScore();
+        updateStats();
+        queueNextRound();
+      } else {
+        applyMistake("WRONG COLOR! You pressed the called color.", "bad");
+      }
+    }
+
+    function applyMistake(message, style) {
+      lives -= 1;
+      streak = 0;
+      $("#feedback").textContent = message;
+      $("#feedback").className = `game-feedback ${style}`;
+      playTone(false);
+      updateStats();
+
+      if (lives <= 0) {
+        window.setTimeout(endGame, 430);
+      } else {
+        queueNextRound();
+      }
+    }
+
+    function queueNextRound() {
+      const delay = MODES[selectedMode].pause;
+      window.setTimeout(() => {
+        if (gameActive && lives > 0) startNextRound();
+      }, delay);
+    }
+
+    function selectColor(color, button) {
+      if (!gameActive || roundResolved) return;
+
+      // Late input is a timeout, never a valid answer.
+      if (performance.now() >= deadline) {
+        resolveTurn(false, null, true);
+        return;
+      }
+
+      resolveTurn(color !== calledColor, button, false);
+    }
+
+    function startGame() {
+      cancelRoundTimers();
+      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+
+      const config = MODES[selectedMode];
+      activeColors = COLORS.slice(0, config.colorCount);
+      score = 0;
+      streak = 0;
+      bestStreak = 0;
+      correctCount = 0;
+      lives = config.lives;
+      calledColor = "";
+      previousCall = "";
+      recentHistory = [];
+      gameActive = true;
+      roundResolved = true;
+
+      $("#modeBadge").textContent = config.label;
+      $("#recentCalls").classList.toggle("visible", selectedMode === "hard");
+      buildColorButtons();
+      updateStats();
+      showScreen("gameScreen");
+      startNextRound();
+    }
+
+    function endGame() {
+      if (!gameActive) return;
+
+      gameActive = false;
+      roundResolved = true;
+      cancelRoundTimers();
+      disableButtons();
+      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+      saveBestScore();
+
+      $("#finalScore").textContent = score.toLocaleString();
+      $("#finalStreak").textContent = String(bestStreak);
+      $("#finalCorrect").textContent = String(correctCount);
+      $("#gameOverMessage").textContent =
+        `You survived ${correctCount} correct call${correctCount === 1 ? "" : "s"} in ${MODES[selectedMode].label.toLowerCase()}.`;
+      showScreen("gameOverScreen");
+    }
+
+    function openInstructions(mode) {
+      selectedMode = mode;
+      const config = MODES[mode];
+      $("#chosenModeCopy").textContent =
+        `${config.label} · ${config.colorCount} colors · ${config.lives} lives · 1-second deadline`;
+      showScreen("instructionsScreen");
+    }
+
+    function stopGameAndShowMenu() {
+      gameActive = false;
+      roundResolved = true;
+      roundToken += 1;
+      cancelRoundTimers();
+      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+      showScreen("menuScreen");
+    }
+
+    $("#playButton").addEventListener("click", () => showScreen("difficultyScreen"));
+    $("#difficultyBack").addEventListener("click", () => showScreen("menuScreen"));
+    $("#backToModes").addEventListener("click", () => showScreen("difficultyScreen"));
+    $("#beginButton").addEventListener("click", startGame);
+    $("#howToButton").addEventListener("click", () => showScreen("howToScreen"));
+    $("#howToTop").addEventListener("click", () => showScreen("howToScreen"));
+    $("#howToBack").addEventListener("click", () => showScreen("menuScreen"));
+    $("#settingsButton").addEventListener("click", () => showScreen("settingsScreen"));
+    $("#settingsTop").addEventListener("click", () => showScreen("settingsScreen"));
+    $("#gameSettingsButton").addEventListener("click", () => showScreen("settingsScreen"));
+    $("#settingsBack").addEventListener("click", () => {
+      if (gameActive) showScreen("gameScreen");
+      else showScreen("menuScreen");
+    });
+    $("#leaveButton").addEventListener("click", stopGameAndShowMenu);
+    $("#playAgainButton").addEventListener("click", () => {
+      openInstructions(selectedMode);
+    });
+    $("#gameOverMenuButton").addEventListener("click", stopGameAndShowMenu);
+
+    document.querySelectorAll(".mode-card").forEach((button) => {
+      button.addEventListener("click", () => openInstructions(button.dataset.mode));
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (!gameActive || roundResolved || event.altKey || event.ctrlKey || event.metaKey) return;
+      if (!/^[1-6]$/.test(event.key)) return;
+
+      const index = Number(event.key) - 1;
+      const button = $("#colorGrid").children[index];
+      if (button && !button.disabled) {
+        event.preventDefault();
+        selectColor(button.dataset.color, button);
+      }
+    });
+  </script>
+</body>
+</html>
